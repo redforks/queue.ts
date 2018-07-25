@@ -1,0 +1,6 @@
+node_modules
+build
+**/*.log
+.babel-pids
+.tsc-pids
+dist

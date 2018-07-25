@@ -1,0 +1,14 @@
+{
+  "name": "queue.ts",
+  "version": "1.0.0",
+  "description": "Task queue using typescript",
+  "main": "index.js",
+  "author": "redforks@gmail.com",
+  "license": "MIT",
+  "dependencies": {
+    "funts": "^1.0.0"
+  },
+  "devDependencies": {
+    "mytslint": "^1.0.7"
+  }
+}
