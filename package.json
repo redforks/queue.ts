@@ -2,13 +2,37 @@
   "name": "queue.ts",
   "version": "1.0.0",
   "description": "Task queue using typescript",
-  "main": "index.js",
   "author": "redforks@gmail.com",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
   "license": "MIT",
+  "scripts": {
+    "build": "tsc"
+  },
   "dependencies": {
-    "funts": "^1.0.0"
+    "funts": "^1.0.0",
+    "rcheck-ts": "^1.0.0"
   },
   "devDependencies": {
-    "mytslint": "^1.0.7"
+    "@types/jest": "^23.1.5",
+    "jest": "^23.4.0",
+    "mytslint": "^1.0.7",
+    "ts-jest": "^23.0.0",
+    "tslint": "^5.10.0",
+    "typescript": "^2.9.2"
+  },
+  "jest": {
+    "transform": {
+      "^.+\\.tsx?$": "ts-jest"
+    },
+    "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.tsx?$",
+    "moduleFileExtensions": [
+      "ts",
+      "tsx",
+      "js",
+      "jsx",
+      "json",
+      "node"
+    ]
   }
 }
