@@ -1,4 +1,5 @@
 import { Action0, Func0 } from 'funts';
+import { isObject } from 'lodash';
 import { assert } from 'rcheck-ts';
 
 export enum QueueState {
@@ -12,7 +13,19 @@ export type Task = Action0 | Func0<Promise<void>>;
 interface TaskRecord {
   task: Task;
   name: string;
+  retry: boolean;
 }
+
+export interface FatalError {
+  isFatalError: true;
+}
+
+function isFatalError(x: any): x is FatalError {
+  return isObject(x) && x.isFatalError === true;
+}
+
+const maxRetryDelay = 10 * 60 * 1000;
+const firstRetryDelay = 1000;
 
 /**
  * Queue execute tasks in order. It solves:
@@ -43,6 +56,7 @@ export class Queue {
   private tasks: TaskRecord[] = [];
   private timerId: number | null = null;
   private waiting: Promise<void> | null = null;
+  private delay = 0;
 
   /**
    * Creates an instance of Queue.
@@ -60,9 +74,10 @@ export class Queue {
    * Put a task to queue
    *
    * @param {string} name optional task name
+   * @param {opt} retry: re-run the task on error unless FatalError raised.
    * @memberof Queue
    */
-  put(task: Task, name: string = '') {
+  put(task: Task, name: string = '', opt?: { retry: boolean }) {
     if (this.state === QueueState.stopped) {
       throw Error(`Queue ${this.name} has stopped`);
     }
@@ -70,6 +85,7 @@ export class Queue {
     this.tasks.push({
       task,
       name,
+      retry: !!opt && opt.retry,
     });
 
     if (this.state === QueueState.running && this.timerId == null) {
@@ -109,12 +125,26 @@ export class Queue {
     const task = this.tasks.shift();
     if (task) {
       console.log(`[${this.name}] Execute task ${task.name}`);
+      let needRetry = false;
       try {
         await task.task();
+        this.delay = 0;
       } catch (e) {
         console.log(
-          `[${this.name}] Error execute task ${task.name}:\n{e.toString()}`,
+          `[${this.name}] Error execute task ${task.name}:\n${e.toString()}`,
         );
+        if (task.retry && !isFatalError(e)) {
+          needRetry = true;
+        }
+      }
+
+      if (needRetry) {
+        this.tasks.unshift(task);
+        if (this.delay === 0) {
+          this.delay = firstRetryDelay;
+        } else {
+          this.delay = Math.min(this.delay * 2, maxRetryDelay);
+        }
       }
 
       if (this.tasks.length) {
@@ -168,6 +198,6 @@ export class Queue {
   }
 
   _start_loop() {
-    this.timerId = setTimeout(this.loop, 0);
+    this.timerId = setTimeout(this.loop, this.delay);
   }
 }

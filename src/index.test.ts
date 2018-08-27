@@ -123,6 +123,56 @@ test('start stopped', async () => {
   expect(q.state).toBe(QueueState.stopped);
 });
 
+describe('retry', () => {
+  let q: Queue;
+  beforeEach(() => {
+    q = new Queue('foo');
+  });
+
+  afterEach(async () => {
+    await q.reset();
+    expect(q.len()).toEqual(0);
+    expect(q.state).toEqual(QueueState.beforeStart);
+
+    assertLog('');
+  });
+
+  it('task succeed', async () => {
+    q.put(log('a'), '', { retry: true });
+    q.start();
+    await q.wait();
+    assertLog('a\n');
+  });
+
+  it('auto retry', async () => {
+    q.start();
+
+    const f = jest.fn().mockRejectedValueOnce(Error('recoverable error'));
+    f.mockResolvedValue(null);
+    q.put(f, '', { retry: true });
+    q.put(log('a'));
+
+    await q.wait();
+    expect(f).toHaveBeenCalledTimes(2);
+    assertLog('a\n');
+  });
+
+  it('fatal error abort retry', async () => {
+    q.start();
+
+    const f = jest.fn().mockRejectedValueOnce({
+      message: 'foo',
+      isFatalError: true,
+    });
+    q.put(f, '', { retry: true });
+    q.put(log('a'));
+
+    await q.wait();
+    assertLog('a\n');
+    expect(f).toHaveBeenCalledTimes(1);
+  });
+});
+
 describe('reset', () => {
   let q: Queue;
   beforeEach(() => {

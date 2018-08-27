@@ -5,6 +5,9 @@ export declare enum QueueState {
     stopped = 2
 }
 export declare type Task = Action0 | Func0<Promise<void>>;
+export interface FatalError {
+    isFatalError: true;
+}
 export declare class Queue {
     readonly name: string;
     state: QueueState;
@@ -12,8 +15,11 @@ export declare class Queue {
     private tasks;
     private timerId;
     private waiting;
+    private delay;
     constructor(name: string);
-    put(task: Task, name?: string): void;
+    put(task: Task, name?: string, opt?: {
+        retry: boolean;
+    }): void;
     len(): number;
     start(): void;
     loop(): Promise<void>;

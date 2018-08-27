@@ -20,6 +20,10 @@
   version "23.3.0"
   resolved "http://registry.npm.taobao.org/@types/jest/download/@types/jest-23.3.0.tgz#5dd70033b616a6228042244ebd992f6426808810"
 
+"@types/lodash@^4.14.116":
+  version "4.14.116"
+  resolved "http://registry.npm.taobao.org/@types/lodash/download/@types/lodash-4.14.116.tgz#5ccf215653e3e8c786a58390751033a9adca0eb9"
+
 abab@^1.0.4:
   version "1.0.4"
   resolved "http://registry.npm.taobao.org/abab/download/abab-1.0.4.tgz#5faad9c2c07f60dd76770f71cf025b62a63cfd4e"
