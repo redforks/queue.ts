@@ -16,11 +16,19 @@ interface TaskRecord {
   retry: boolean;
 }
 
-export interface FatalError {
+export interface IFatalError {
   isFatalError: true;
 }
 
-function isFatalError(x: any): x is FatalError {
+export class FatalError extends Error implements IFatalError {
+  isFatalError: true = true;
+
+  constructor(readonly wrapped: Error) {
+    super(wrapped.message);
+  }
+}
+
+function isFatalError(x: any): x is IFatalError {
   return isObject(x) && x.isFatalError === true;
 }
 

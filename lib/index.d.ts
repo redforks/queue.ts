@@ -5,8 +5,13 @@ export declare enum QueueState {
     stopped = 2
 }
 export declare type Task = Action0 | Func0<Promise<void>>;
-export interface FatalError {
+export interface IFatalError {
     isFatalError: true;
+}
+export declare class FatalError extends Error implements IFatalError {
+    readonly wrapped: Error;
+    isFatalError: true;
+    constructor(wrapped: Error);
 }
 export declare class Queue {
     readonly name: string;
